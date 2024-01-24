@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer utilities {
+    .light {
+        @apply bg-[#f1f5f9] text-[#292524] 
+    }
+    .dark {
+        @apply bg-[#292524] text-[#f1f5f9] border-[#94a3b866]
+    }
+    .green-light {
+        @apply bg-[#22c55e] text-[#292524]
+    }
+    .green-dark {
+        @apply bg-[#22c55e] text-[#f1f5f9]
+    }
+    .black {
+        @apply bg-[#1c1917] text-[#fafafa]
+    }
+    .white {
+        @apply bg-[#fafafa] text-[#1c1917]
+    }
+    .gray {
+        @apply bg-[#3b3b3b] text-[#fafafa] border-[#94a3b866]
+    }
+    .light-gray {
+        @apply bg-[#d6dadea2] text-[#1c1917]
+    }
+}
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+input[type=checkbox]:focus {
+    appearance: none;
+    outline: none;
+}
+
+.swiper-slide-thumb-active {
+    border: 1px solid #757575;
+    border-radius: 6px;
+}
+
+.mySwiper {
+    margin-top: 10px;
+}
+
+.mySwiper img {
+    border-radius: 6px;
+}
