@@ -1,10 +1,11 @@
 import { API } from "@/config/axios";
 import { useEffect, useState } from "react";
 import { TbFileInvoice } from "react-icons/tb";
-
+import moment from 'moment';
 
 
 interface Order {
+    _id: string;
     customer: any;
     invoiceNumber: string;
     createdAt: string;
@@ -37,6 +38,20 @@ export default function DataTable() {
       fetchOrders();
     }, []);
 
+    const handleStatusChange = async (orderId: string, newStatus: string) => {
+      try {
+        await API.put(`/dashboard/orders/${orderId}`, { status: newStatus });
+        console.log('Updating status for order ID:', orderId, 'to', newStatus);
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order._id === orderId ? { ...order, status: newStatus } : order
+          )
+        );
+      } catch (error) {
+        console.error('Error updating order status:', error);
+      }
+    };
+
   return (
     <div className="border rounded-lg shadow-sm mb-44">
       <table className='w-full text-sm'>
@@ -54,20 +69,25 @@ export default function DataTable() {
           </thead>
           <tbody className='w-full'>
           {orders.map((order, index) => (
-            <tr key={1} className='border-t'>
+            <tr key={order._id} className='border-t'>
                 <td key={`invoiceNumber-${index}`} className="px-2 py-4">1</td>
-                <td key={`createdAt-${index}`} className="px-2 py-4">{order.createdAt}</td>
-                <td key={`customerName-${index}`} className="px-2 py-4">{order.customer.name}</td>
-                <td key={`method-${index}`} className="px-2 py-4">{order.method}</td>
+                <td key={`createdAt-${index}`} className="px-2 py-4">{moment(order.createdAt).format('DD-MM-YYYY HH:mm:ss')}</td>
+                <td key={`customerName-${index}`} className="px-2 py-4">{order.customer.name.charAt(0).toUpperCase() + order.customer.name.slice(1)}</td>
+                <td key={`method-${index}`} className="px-2 py-4">{order.method.charAt(0).toUpperCase() + order.method.slice(1)}</td>
                 <td key={`total-${index}`} className="px-2 py-4">${order.total.toFixed(2)}</td>
-                <td key={`status-${index}`} className="px-2 py-4">{order.status}</td>
+                <td key={`status-${index}`} className="px-2 py-4">{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</td>
                 <td key={`action-${index}`} className="px-2 py-4">
-                    <select name="" id="" className="white dark:black rounded-md">
-                        <option value="">Delivered</option>
-                        <option value="">Pending</option>
-                        <option value="">Processing</option>
-                        <option value="">Cancel</option>
-                    </select>
+                <select
+                  name="status"
+                  value={order.status}
+                  onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                  className="white dark:black rounded-md"
+                >
+                  <option value="delivered">Delivered</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="cancel">Cancel</option>
+                </select>
                 </td>
                 <td key={`invoice-${index}`} className="px-2 py-1">
                     <button>

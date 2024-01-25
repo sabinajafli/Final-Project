@@ -3,11 +3,14 @@ import Link from 'next/link'
 import React, { useContext, useState } from 'react'
 import styles from './Login.module.css'
 import { LoginCall } from '../../../../../../services/auth';
+import { UserContext } from '@/context/AuthContext';
 
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { setUser } = useContext(UserContext)
+  
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -15,7 +18,8 @@ const Login = () => {
       const { data } = await LoginCall({ email, password });
       console.log(data);
       localStorage.setItem('token', data.data.token);
-  
+      setUser(data.data.user)
+      console.log(data.data.user)
     } catch (err) {
       console.error(err);
     }

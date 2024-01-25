@@ -17,6 +17,8 @@ import { PiTrash } from "react-icons/pi";
 import { API } from "@/config/axios";
 import { useEffect, useState } from "react";
 
+
+
 interface BasketItem {
   _id: string;
   userId: string;
@@ -24,9 +26,10 @@ interface BasketItem {
   productCount: number;
 }
 
-export default function Cart() {
+export default function Basket() {
   const [basketData, setBasketData] = useState<BasketItem[] | null>(null);
   const [productDetails, setProductDetails] = useState<any>(null);
+  
 
   useEffect(() => {
     const fetchBasketData = async () => {
@@ -52,25 +55,40 @@ export default function Cart() {
     fetchBasketData();
   }, []);
 
-  const handleCheckout = async () => {
+  const handleDelete = async (productId: string) => {
     try {
-      if (!basketData) {
-        console.error('Basket data is null');
-        return;
-      }
-  
-      const products = basketData.map((item) => ({
-        productId: item.productId,
-        productCount: item.productCount,
-      }));
+      const token = localStorage.getItem('token'); 
+      console.log('Token:', token);
+      
+      const response = await API.delete(`/site/basket/${productId}`, {
+        headers: {
 
-      const response = await API.post('/site/orders', { products });
-      console.log('Checkout successful:', response.data);
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      console.log('Delete Response:', response);
+  
+      if (response.status === 200) {
+        const updatedBasketResponse = await API.get('/site/basket');
+        setBasketData(updatedBasketResponse.data.data);
+      } else {
+        console.error('Failed to delete product:', response.statusText);
+      }
     } catch (error) {
-      console.error('Error during checkout:', error);
+      console.error('Error deleting product:', error);
     }
   };
+ 
 
+  const total = basketData?.reduce((acc, item) => {
+    const product = productDetails?.find((p: { _id: string; }) => p._id === item.productId);
+    if (product) {
+      const price = product.salePrice === 0 ? product.productPrice : product.salePrice;
+      acc += price * item.productCount;
+    }
+    return acc;
+  }, 0);
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -80,14 +98,14 @@ export default function Cart() {
           <path d="M8.5612 15.3407C8.34228 15.3407 8.13233 15.2535 7.97753 15.0982C7.82273 14.943 7.73576 14.7324 7.73576 14.5128H6.07715C6.07715 14.8395 6.14129 15.1629 6.26592 15.4646C6.39055 15.7664 6.57322 16.0406 6.8035 16.2715C7.03378 16.5025 7.30717 16.6857 7.60805 16.8107C7.90893 16.9357 8.23141 17 8.55707 17C8.88274 17 9.20522 16.9357 9.5061 16.8107C9.80698 16.6857 10.0804 16.5025 10.3106 16.2715C10.5409 16.0406 10.7236 15.7664 10.8482 15.4646C10.9729 15.1629 11.037 14.8395 11.037 14.5128H9.38612C9.38612 14.7323 9.29923 14.9428 9.14454 15.098C8.98985 15.2533 8.78003 15.3406 8.5612 15.3407Z"></path>
           <path d="M19.3299 1.64401C19.2849 1.63633 19.2393 1.63252 19.1937 1.63263H5.9867C5.76778 1.63263 5.55782 1.71985 5.40302 1.8751C5.24823 2.03035 5.16126 2.24092 5.16126 2.46047C5.16126 2.68003 5.24823 2.8906 5.40302 3.04585C5.55782 3.2011 5.76778 3.28832 5.9867 3.28832H18.2192L18.001 4.60149L16.8438 11.5668H6.07595L3.26946 4.60149L1.59537 0.482961C1.50684 0.289212 1.34721 0.13717 1.14972 0.0584856C0.952225 -0.020199 0.732083 -0.0194636 0.535118 0.0605389C0.338153 0.140541 0.179541 0.293646 0.0922992 0.487983C0.00505767 0.682319 -0.00409102 0.902913 0.0667575 1.10384L2.73963 7.68158L4.56385 12.5307C4.6985 12.9389 4.97657 13.2224 5.37794 13.2224H17.5428C17.7383 13.2225 17.9275 13.1531 18.0766 13.0264C18.2258 12.8997 18.3253 12.724 18.3574 12.5307L19.675 4.60149L20.0083 2.59655C20.0443 2.38002 19.993 2.15803 19.8658 1.9794C19.7386 1.80077 19.5458 1.68013 19.3299 1.64401Z"></path>
           </svg>
-          <span className='absolute top-[-10px] right-[-5px] bg-[#dd3327] text-white px-1 rounded-full text-[11px]'>0</span>
+          <span className='absolute top-[-10px] right-[-5px] bg-[#dd3327] text-white px-1 rounded-full text-[11px]'>{basketData ? basketData.length : 0}</span>
         </div>
       </SheetTrigger>
       <SheetContent side={'right'} className="w-[80%] md:w-[65%] lg:w-[45%]">
         <SheetHeader>
           <SheetTitle className='relative mb-[50px]'>
           <div className='flex items-center justify-between text-[#111] bg-white py-4 px-4 w-full absolute'>
-          <p className='text-[18px] fornt-semibold'>Shopping Cart (0)</p>
+          <p className='text-[18px] font-semibold'>Shopping Cart ({basketData ? basketData.length : 0})</p>
           <SheetClose asChild>
             <Cross2Icon className="opacity-[0.6] hover:opacity-[1] duration-75" />
           </SheetClose>
@@ -119,20 +137,31 @@ export default function Cart() {
                   <div className="flex flex-col gap-3">
                     <h4>{product.title}</h4>
                     <div>
-                      <span className="pr-2 font-medium text-[#dd3327]">${product.productPrice}</span>
-                      <span className="text-[15px] text-[#555] line-through">${product.salePrice}</span>
+                    {
+                      product.salePrice === 0 ? (
+                        <span className="pr-2 font-medium text-[#dd3327]">${product.productPrice.toFixed(2)}</span>
+                      ) : (
+                        <>
+                        <span className="pr-2 font-medium text-[#dd3327]">${product.salePrice.toFixed(2)}</span><span className="text-[15px] text-[#555] line-through">${product.productPrice.toFixed(2)}</span>
+                        </>
+                      )
+                    }
                     </div>
                     <div className='w-[80px] border text-center px-0 bg-[#efefef] rounded-[5px]'>
-                      <button>–</button>
-                      <input type="number" defaultValue={1} className="w-12 border-0 bg-[#efefef] text-center" />
+                    <button>-</button>
+                    <input
+                      type="number"
+                      className="w-12 border-0 bg-[#efefef] text-center"
+                      defaultValue={1}
+                    />
                       <button>+</button>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <button>
-                    <PiTrash />
-                  </button>
+                <button onClick={() => handleDelete(product._id)}>
+                  <PiTrash />
+                </button>
                   </div>
                 </div>
                     );
@@ -150,7 +179,7 @@ export default function Cart() {
               <div className="py-5 px-4 bg-[#f5f5f5]">
                 <div className="flex justify-between">
                   <p className="text-[18px] text-[#111] font-medium">Subtotal</p>
-                  <p className="text-[18px] text-[#111] font-medium">$116.00</p>
+                  <p className="text-[18px] text-[#111] font-medium">${total ? total.toFixed(2) : '0.00'}</p>
                 </div>
                 <div className="py-4 flex items-center gap-3 text-[#111]">
                   <input type="checkbox" />
@@ -160,10 +189,10 @@ export default function Cart() {
                 <SheetClose className="py-3 w-full bg-white border border-[#111] rounded-full hover:bg-[#111] hover:text-white transition-all duration-150 text-[12px] font-semibold">
                     <Link href='/cart'>VIEW CART</Link>
                 </SheetClose>
-                <SheetClose className="py-3 w-full bg-[#111] text-white rounded-full text-[12px] font-semibold" onClick={handleCheckout}>
-                    {/* <Link href='/checkout' > */}
+                <SheetClose className="py-3 w-full bg-[#111] text-white rounded-full text-[12px] font-semibold">
+                    <Link href='/checkout' >
                       CHECKOUT
-                    {/* </Link> */}
+                    </Link>
                 </SheetClose>
                 </div>
               </div>

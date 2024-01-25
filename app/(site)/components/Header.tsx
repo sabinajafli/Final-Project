@@ -1,7 +1,7 @@
 import ToggleMenu from './ToggleMenu'
 import Link from 'next/link'
 import { FaChevronDown } from "react-icons/fa";
-import Cart from './Cart';
+import Cart from './Basket';
 import Search from './Search';
 // import Login from './Login';
 

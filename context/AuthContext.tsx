@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useState, Dispatch, SetStateAction } from 'react';
 
 export interface User {
+  token: any;
   id: string;
   name: string;
   role: string
