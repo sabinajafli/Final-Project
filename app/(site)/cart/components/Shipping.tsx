@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { LiaShippingFastSolid } from "react-icons/lia";
 
-const Shipping = () => {
+
+
+const Shipping = (total) => {
   return (
     <div className='w-full my-8 bg-[#f5f5f5] md:w-[25%] px-6 py-4 h-fit'>
         <div className='w-full h-1 bg-[#ebebeb] rounded-full mt-5 mb-[70px] relative'>
@@ -12,7 +14,7 @@ const Shipping = () => {
         </div>
         <div className="border-t flex justify-between">
           <p className="mt-5 text-[20px] text-[#111] font-medium">Subtotal</p>
-          <p className="mt-5 text-[20px] text-[#111] font-medium">$116.00</p>
+          <p className="mt-5 text-[20px] text-[#111] font-medium">${total ? total.toFixed(2) : '0.00'}</p>
         </div>
         <p className="text-[#12px] text-[#555] my-5 ">Taxes and shipping calculated at checkout</p>
         <div className="py-4 flex items-center gap-3 text-[#111]">

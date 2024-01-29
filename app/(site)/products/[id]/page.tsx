@@ -45,7 +45,7 @@ export default function DetailPage({ params }: any) {
   return (
     <section className='px-5 md:mx-5 xl:mx-10'>
       <DetailNav productDetails={productDetails} />
-      <div className='flex flex-col md:flex-row gap-28 mb-20'>
+      <div className='flex flex-col lg:flex-row gap-16 mb-20'>
         <SwiperComponent images={productDetails.images} />
         <Details productDetails={productDetails} />
       </div>

@@ -4,6 +4,7 @@ import { API } from '@/config/axios';
 import { HiOutlineTrash } from "react-icons/hi2";
 import AddStaff from './AddStaff';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface User {
   _id: string;
@@ -40,11 +41,6 @@ export default function StaffTable() {
     fetchUser();
   }, []); 
 
-  const filterName = users.data.filter(user =>
-    (user.name && user.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (user.surname && user.surname.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
   const handleDeleteUser = async (userId: string) => {
     try {
       await API.delete(`/dashboard/users/${userId}`);
@@ -54,7 +50,6 @@ export default function StaffTable() {
     }
   };
 
-
   return (
     <section>
       <div className='flex gap-4 my-4'>
@@ -63,6 +58,16 @@ export default function StaffTable() {
         onChange={(e) => setSearchQuery(e.target.value)} />
         <AddStaff />
       </div>
+      {users.data.length === 0 ? (
+      <div>
+        <Skeleton className='h-7 w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+      </div>
+    ) : (
       <div className="border rounded-lg shadow-sm">
         <table className='w-full text-sm'>
           <thead className='text-start light dark:dark rounded-lg'>
@@ -102,6 +107,7 @@ export default function StaffTable() {
           </tbody> 
         </table>
       </div>
+    )}
     </section>
   );
 }

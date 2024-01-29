@@ -2,7 +2,9 @@ import { LuLayers } from "react-icons/lu";
 import { LuShoppingCart } from "react-icons/lu";
 import { IoCardOutline } from "react-icons/io5";
 
+
 export default function TotalOrders() {
+
   return (
     <section className="flex w-full gap-4">
         <div className="w-1/5 bg-[#0d9488] text-[#d1fae5] h-[130px] rounded-md flex flex-col items-center justify-center">

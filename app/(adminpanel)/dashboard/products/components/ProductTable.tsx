@@ -20,6 +20,7 @@ import { TfiMoney } from 'react-icons/tfi';
 import { Button } from '@/components/ui/button';
 import AddProductSheet from './AddProductSheet';
 import BrandSelector from './BrandSelector';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 export interface Product {
@@ -160,6 +161,20 @@ export default function ProductTable() {
       onChange={(e) => setSearchQuery(e.target.value)} />
       <AddProductSheet />
     </div>
+    {filterProduct.length === 0 ? (
+      <div>
+        <Skeleton className='h-7 w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+      </div>
+    ) : (
     <div className="border rounded-lg shadow-sm">
       <table className='w-full text-sm'>
           <thead className='text-start light dark:dark rounded-lg'>
@@ -303,6 +318,7 @@ export default function ProductTable() {
           </tbody> 
       </table>
     </div>
+    )}
     <Pagination
         currentPage={currentPage}
         handlePreviousPage={handlePreviousPage}

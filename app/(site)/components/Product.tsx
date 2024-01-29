@@ -1,4 +1,3 @@
-'use client'
 import Link from 'next/link';
 import { MdStarRate } from "react-icons/md";
 import { IoIosHeartEmpty } from "react-icons/io";
@@ -6,7 +5,6 @@ import { BiCart } from "react-icons/bi";
 import { VscLayers } from "react-icons/vsc";
 import ProductDialog from './ProductDialog';
 import { useState } from 'react';
-import { API } from '@/config/axios';
 
 export interface ProductItem {
   availability: string;
@@ -29,27 +27,24 @@ interface ProductProps {
 const Product: React.FC<ProductProps> = ({ productItem }) => {
   const firstImageUrl = productItem.images[0]?.url;
   const secondImageUrl = productItem.images[1]?.url;
+
   const [quantity, setQuantity] = useState(1);
   
 
-  const handleAddToCart = async () => {
-    try {
-      const response = await API.post('/site/basket', {
-        basket: [
-          {
-            productId: productItem._id,
-            productCount: quantity,
-          },
-        ],
+  const handleAddToCart = () => {
+    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+    const existingProduct = existingCart.find((item: { productId: string; }) => item.productId === productItem._id);
+
+    if (existingProduct) {
+      existingProduct.productCount += quantity;
+    } else {
+      existingCart.push({
+        productId: productItem._id,
+        productCount: quantity,
       });
-      if (response.status === 200) {
-        console.log('Product added to cart successfully');
-      } else {
-        console.error('Failed to add product to cart');
-      }
-    } catch (error) {
-      console.error('Error while processing the request:', error);
     }
+    localStorage.setItem('cart', JSON.stringify(existingCart));
   };
   
 
@@ -98,6 +93,7 @@ const Product: React.FC<ProductProps> = ({ productItem }) => {
           </button>
           <ProductDialog productItem={productItem} />
           <button
+            onClick={handleAddToCart}
             className={`w-7 h-7 rounded-full bg-white hover:bg-[#111] hover:text-white flex justify-center items-center transition-all duration-200 ${
               productItem.stock === 0 ? 'cursor-not-allowed' : ''
             }`}
@@ -108,7 +104,7 @@ const Product: React.FC<ProductProps> = ({ productItem }) => {
         </div>
         <div className='group-hover:opacity-100 transition-all duration-200 opacity-0 hidden lg:block absolute bottom-3 text-center w-full px-3'>
           <button
-            onClick={handleAddToCart}
+          onClick={handleAddToCart}
             className={`${
               productItem.stock === 0
                 ? 'bg-white hover:bg-[#111] text-[#111] hover:text-white cursor-not-allowed'

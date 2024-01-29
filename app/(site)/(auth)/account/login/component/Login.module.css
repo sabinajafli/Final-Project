@@ -13,7 +13,7 @@
 }
 
 .form {
-    margin: 50px;
+    margin: 50px 20px;
     display: flex;
     flex-direction: column;
     gap: 50px;
@@ -75,10 +75,10 @@
 @media (min-width: 768px) { 
     .form {
         flex-direction: row;
-        margin: 50px 80px;
+        margin: 50px 50px;
     }
 
     .login {
-        width: 70%;
+        width: 90%;
     }
 } 

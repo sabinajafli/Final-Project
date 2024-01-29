@@ -19,6 +19,7 @@ import PriceFilter from './PriceFilter';
 import StockFilter from './StockFilter';
 import Product, { ProductItem } from '../../components/Product';
 import FilterButton from './FilterButton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Brand {
   _id: string;
@@ -117,10 +118,6 @@ export default function Filter() {
   });
   
 
-  if (products.length === 0) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <section className="flex">
       <div className="hidden lg:inline-block pl-8 lg:pl-10 w-[30%]">
@@ -184,11 +181,19 @@ export default function Filter() {
           </Select>
         </div>
         <div className="flex flex-wrap w-full">
-          {filteredProducts.map((productItem) => (
+        {filteredProducts.length === 0 ? (
+          <div className="flex items-center w-full h-[550px] space-x-3">
+          <Skeleton className="h-[500px] w-1/3 bg-[#b3b3b3]" />
+          <Skeleton className="h-[500px] w-1/3 bg-[#b3b3b3]" />
+          <Skeleton className="h-[500px] w-1/3 bg-[#b3b3b3]" />
+        </div>
+        ) : (
+          filteredProducts.map((productItem) => (
             <div key={productItem._id} className="w-1/2 md:w-1/2 lg:w-1/3 p-2">
               <Product productItem={productItem} />
             </div>
-          ))}
+          ))
+        )}
         </div>
       </div>
     </section>

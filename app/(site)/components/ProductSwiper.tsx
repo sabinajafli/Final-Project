@@ -5,7 +5,7 @@ import Product from './Product';
 import { ProductItem } from './Product';
 import { useEffect, useState } from 'react';
 import { API } from '@/config/axios';
-
+import { Skeleton } from "@/components/ui/skeleton"
 
 
 const ProductSwiper = () => {
@@ -22,7 +22,15 @@ const ProductSwiper = () => {
   }, []);
 
   if (products.length === 0) {
-    return <div>Loading...</div>;
+    console.log('Rendering Skeletons...');
+    return (
+      <div className="flex items-center w-full h-[550px] space-x-4">
+        <Skeleton className="h-[500px] w-1/4 bg-[#b3b3b3]" />
+        <Skeleton className="h-[500px] w-1/4 bg-[#b3b3b3]" />
+        <Skeleton className="h-[500px] w-1/4 bg-[#b3b3b3]" />
+        <Skeleton className="h-[500px] w-1/4 bg-[#b3b3b3]" />
+      </div>
+    );
   }
   return (
     <div className='py-10'>

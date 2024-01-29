@@ -17,7 +17,7 @@ interface DetailProps {
 export default function Details({productDetails}: DetailProps) {
 
   return (
-    <div className='w-full md:w-1/2'>
+    <div className='w-full md:w-full lg:w-[70%]'>
       <div>
         {productDetails.salePrice != null && productDetails.salePrice !== 0 ? (
             <span className='w-10 text-white bg-red-600 px-2 text-[14px] rounded-full'>

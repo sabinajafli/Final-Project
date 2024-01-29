@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { FaChevronDown } from "react-icons/fa";
 import Cart from './Basket';
 import Search from './Search';
-// import Login from './Login';
+import Login from './Login';
 
 
 
@@ -33,11 +33,10 @@ const Header = () => {
             <li className='px-5 py-5 cursor-pointer hover:text-[#dd3327] transition-all duration-150'>Sale</li>
         </ul>
         <div className='flex gap-5'>
-            {/* <Login /> */}
+            <Login />
             <Search />
             <Cart/>
         </div>
-
     </header>
   )
 }

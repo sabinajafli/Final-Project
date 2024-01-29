@@ -3,23 +3,22 @@ import Link from 'next/link'
 import React, { useContext, useState } from 'react'
 import styles from './Login.module.css'
 import { LoginCall } from '../../../../../../services/auth';
-import { UserContext } from '@/context/AuthContext';
 
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setUser } = useContext(UserContext)
-  
+  const [token, setToken] = useState('');
+  const [userRole, setUserRole] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const { data } = await LoginCall({ email, password });
-      console.log(data);
+      setToken(data.data.token);
+      setUserRole(data.data.user.role);
       localStorage.setItem('token', data.data.token);
-      setUser(data.data.user)
-      console.log(data.data.user)
+      localStorage.setItem('userRole', data.data.user.role )
     } catch (err) {
       console.error(err);
     }

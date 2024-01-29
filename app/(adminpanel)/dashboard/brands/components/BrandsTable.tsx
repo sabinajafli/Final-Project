@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Brand {
   image: string | { url: string };
@@ -107,6 +108,17 @@ export default function BrandsTable() {
   };
 
   return (
+    <>
+    {brands.data.length === 0 ? (
+      <div className='py-10'>
+        <Skeleton className='h-7 w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+        <Skeleton className='h-14 my-1  w-full light dark:dark'></Skeleton>
+      </div>
+    ) : (
     <div className="border rounded-lg my-10 shadow-sm">
         <table className='w-full text-sm'>
             <thead className='text-start light dark:dark rounded-lg'>
@@ -174,7 +186,9 @@ export default function BrandsTable() {
             </tr>
         ))}
         </tbody> 
-    </table>
-  </div>
+        </table>
+    </div>
+    )}
+    </>
   )
 }
