@@ -151,7 +151,6 @@ export default function Basket() {
               <div key={item.productId}>
               <div className="flex justify-between py-5 px-4 border-b border-dashed">
                 <div className="flex gap-4">
-                  
                     <img src={item.productDetails.data.images[0].url} alt="product" width={87} height={70} />
                   <div className="flex flex-col gap-3">
                     <h4>{item.productDetails.data.title}</h4>

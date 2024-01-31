@@ -99,11 +99,16 @@ const ToggleMenu = () => {
                     </AccordionItem>
                     <AccordionItem value="item-4">
                       <AccordionTrigger>Blog</AccordionTrigger>
-                      <AccordionContent>hi</AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="item-5">
                       <AccordionTrigger>Page</AccordionTrigger>
-                      <AccordionContent>hi</AccordionContent>
+                      <AccordionContent>
+                      <ul className="flex flex-col  text-[16px] text">
+                        <li className="border-t py-4"><Link href='/shop'>Shop</Link></li>
+                        <li className="border-t py-4"><Link href='/cart'>Cart</Link></li>
+                        <li className="border-t py-4"><Link href='/checkout'>Checkout</Link></li>
+                      </ul>
+                      </AccordionContent>
                     </AccordionItem>
                   </Accordion>
                   <p className="border-b border-gray py-4">Sale</p>

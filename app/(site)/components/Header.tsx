@@ -4,7 +4,13 @@ import { FaChevronDown } from "react-icons/fa";
 import Cart from './Basket';
 import Search from './Search';
 import Login from './Login';
-
+import {
+    Menubar,
+    MenubarContent,
+    MenubarItem,
+    MenubarMenu,
+    MenubarTrigger,
+  } from "@/components/ui/menubar"
 
 
 const Header = () => {
@@ -28,7 +34,25 @@ const Header = () => {
                 <span>Blog</span> <FaChevronDown className='text-[10px] ml-2' />
             </li>
             <li className='flex items-center px-5 py-5 cursor-pointer hover:text-[#dd3327] transition-all duration-150'>
-                <span>Page</span> <FaChevronDown className='text-[10px] ml-2' />
+            <Menubar>
+            <MenubarMenu>
+                <MenubarTrigger>
+                <span>Page</span> 
+                <FaChevronDown className='text-[10px] ml-2' />
+                </MenubarTrigger>
+                <MenubarContent>
+                <MenubarItem>
+                    <Link href='/shop'>Shop</Link>
+                </MenubarItem>
+                <MenubarItem>
+                    <Link href='/cart'>Cart</Link>
+                </MenubarItem>
+                <MenubarItem>
+                    <Link href='/checkout'>Checkout</Link>
+                </MenubarItem>
+                </MenubarContent>
+            </MenubarMenu>
+            </Menubar>
             </li>
             <li className='px-5 py-5 cursor-pointer hover:text-[#dd3327] transition-all duration-150'>Sale</li>
         </ul>

@@ -1,57 +1,102 @@
 'use client'
-import { API } from '@/config/axios';
 import Link from 'next/link'
-import { useEffect, useState } from 'react';
 import { IoTrashOutline } from "react-icons/io5";
+import { API } from "@/config/axios";
+import { useEffect, useState } from "react";
 
-interface BasketItem {
-  _id: string;
-  userId: string;
+interface ProductDetails {
+  data: any;
+  title: string;
+  image: string;
+  originalPrice: number;
+  salePrice: number;
+}
+
+export interface CartItem {
+  productPrice: number;
+  title: string;
   productId: string;
   productCount: number;
+  productDetails: ProductDetails;
 }
 
 const Product = () => {
-  const [basketData, setBasketData] = useState<BasketItem[] | null>(null);
-  const [productDetails, setProductDetails] = useState<any>(null);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
-    const fetchBasketData = async () => {
-      try {
-        const response = await API.get('/site/basket');
-        setBasketData(response.data.data);
-  
-        if (response.data.data?.length > 0) {
-          const productIds = response.data.data.map((item: any) => item.productId);
-          
+    const storedCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-          const productDetailsResponse = await Promise.all(productIds.map((productId: string) => API.get(`/site/products/${productId}`)));
-
-          const details = productDetailsResponse.map((response: any) => response.data.data);
-          console.log('Product Details:', details);
-          setProductDetails(details);
-        }
-      } catch (error) {
-        console.error('Error fetching basket data:', error);
-      }
+    
+    const fetchProductDetails = async () => {
+      const updatedCart = await Promise.all(
+        storedCart.map(async (item: any) => {
+          try {
+            const response = await API.get(`/site/products/${item.productId}`);
+            const productDetails: ProductDetails = response.data;
+            return {
+              ...item,
+              productDetails,
+            };
+          } catch (error) {
+            console.error(`Error fetching product details for ID ${item.productId}:`, error);
+            return item;
+          }
+        })
+      );
+      setCartItems(updatedCart);
+      
     };
-  
-    fetchBasketData();
+
+    fetchProductDetails();
   }, []);
 
-  const total = basketData?.reduce((acc, item) => {
-    const product = productDetails?.find((p: { _id: string; }) => p._id === item.productId);
-    if (product) {
-      const price = product.salePrice === 0 ? product.productPrice : product.salePrice;
-      acc += price * item.productCount;
-    }
-    return acc;
-  }, 0);
+  const saveCartToLocalStorage = (cartItems: CartItem[]) => {
+    localStorage.setItem("cart", JSON.stringify(cartItems));
+  };
 
+  const handleDecrease = (productId: string) => {
+    setCartItems((prevItems) => {
+      const updatedCart = prevItems.map((item) =>
+        item.productId === productId
+          ? { ...item, productCount: Math.max(item.productCount - 1, 0) }
+          : item
+      );
+  
+      const filteredCart = updatedCart.filter((item) => item.productCount > 0);
+  
+      return filteredCart;
+    });
+  };
+
+  const handleIncrease = (productId: string) => {
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
+        item.productId === productId ? { ...item, productCount: item.productCount + 1 } : item
+      )
+    );
+  };
+
+  const handleRemoveFromBasket = (productId: string) => {
+    setCartItems((prevItems) => prevItems.filter((item) => item.productId !== productId));
+  };
+
+  useEffect(() => {
+    saveCartToLocalStorage(cartItems);
+  }, [cartItems]);
+  
+
+  const calculateTotal = (cartItems: CartItem[]) => {
+    return cartItems.reduce((total, item) => {
+      const itemTotal = item.productCount * (item.productDetails.data.salePrice || item.productDetails.data.productPrice);
+      return total + itemTotal;
+    }, 0);
+  };
+
+  const totalAmount = calculateTotal(cartItems);
 
   return (
     <div className="mt-8">
-    <table className="min-w-full bg-white border border-gray-300 hidden md:table">
+     <table className="min-w-full bg-white border border-gray-300 hidden md:table">
     <thead>
       <tr className='text-gray-700 text-[14px] font-normal'>
         <th className="py-2 px-4 border-b border-r text-start">Product</th>
@@ -61,80 +106,74 @@ const Product = () => {
       </tr>
     </thead>
     <tbody className='border-b'>
-    {productDetails &&
-    productDetails.map((product: any) => (
-      <tr key={product._id} className='border-b'>
+    {cartItems.map((item) => (
+      <tr key={item.productId} className='border-b'>
         <td className="py-2 px-4 border-r">
           <div className="flex items-center">
-          {product.images.length > 0 && (
-            <img src={product.images[0].url} alt="Product Image" className="w-[80px] h-[105px] object-cover mr-4" />
-          )}
+            <img src={item.productDetails.data.images[0].url} alt="Product Image" className="w-[80px] h-[105px] object-cover mr-4" />
             <div>
-              <p className="font-medium"><Link href='/product/productId'>{product.title}</Link></p>
+              <p className="font-medium"><Link href='/product/productId'>{item.productDetails.data.title}</Link></p>
               <div>
-            {
-              product.salePrice === 0 ? (
-                        <span className="pr-2 font-medium text-[#dd3327]">${product.productPrice.toFixed(2)}</span>
-              ) : (
-              <>
-                <span className="pr-2 font-medium text-[#dd3327]">${product.salePrice.toFixed(2)}</span><span className="text-[15px] text-[#555] line-through">${product.productPrice.toFixed(2)}</span>
-              </>
-              )
-            }
-          </div>
+              {
+                item.productDetails.data.salePrice !== 0 ? (
+                <>
+                  <span className='text-red-600 mr-2'>${item.productDetails.data.salePrice.toFixed(2)}</span>
+                  <span className='text-[14px] last:line-through'>${item.productDetails.data.productPrice.toFixed(2)}</span>
+                </>
+                ) : (
+                <span className='text-red-600'>${item.productDetails.data.productPrice.toFixed(2)}</span>
+              )}
+              </div>
             </div>
           </div>
         </td>
         <td className="py-2 px-4 border-r">
-          <div className='w-[80px] border text-center px-0 bg-[#efefef]'>
-            <button>–</button>
-            <input type="number" defaultValue={1} className="w-12 border-0 bg-[#efefef] text-center" />
-            <button>+</button>
+          <div className="w-[80px] border text-center px-0 bg-[#efefef] rounded-[5px]">
+            <button onClick={() => handleDecrease(item.productId)}> - </button>
+            <input type="number" className="w-12 border-0 bg-[#efefef] text-center" value={item.productCount} readOnly />
+            <button onClick={() => handleIncrease(item.productId)}> + </button>
           </div>
         </td>
-        <td className="py-2 px-4 border-r">${((product.salePrice === 0 ? product.productPrice : product.salePrice) * 1).toFixed(2)}</td>
+        <td className="py-2 px-4 border-r">${totalAmount}</td>
         <td className="py-2 px-2 text-center">
-          <button className="text-gray-600 hover:text-gray-700"><IoTrashOutline /></button>
+          <button className="text-gray-600 hover:text-gray-700" onClick={() => handleRemoveFromBasket(item.productId)}><IoTrashOutline /></button>
         </td>
       </tr>
       ))
     }
     </tbody>
     </table>
-
+   
     <table className="min-w-full bg-white border border-gray-300 md:hidden">
     <tbody className='border-b'>
-    {productDetails &&
-    productDetails.map((product: any) => (
-      <tr key={product._id} className='border-b'>
+    {cartItems.map((item) => (
+      <tr key={item.productId} className='border-b'>
         <td className="py-2 w-[133px] px-4">
-        {product.images.length > 0 && (
-          <img src={product.images[0].url} alt="Product Image" className="w-[100px] h-[133px] object-cover" />
-        )}
+          <img src={item.productDetails.data.images[0].url} alt="Product Image" className="w-[100px] h-[133px] object-cover" />
         </td>
         <td className='flex flex-col py-2 justify-between gap-2'>
-          <p className="font-medium text-[14px]"><Link href='/product/productId'>{product.title}</Link></p>
+          <p className="font-medium text-[14px]"><Link href='/product/productId'>{item.productDetails.data.title}</Link></p>
           <div>
             {
-              product.salePrice === 0 ? (
-                        <span className="pr-2 font-medium text-[#dd3327]">${product.productPrice.toFixed(2)}</span>
-              ) : (
+              item.productDetails.data.salePrice !== 0 ? (
               <>
-                <span className="pr-2 font-medium text-[#dd3327]">${product.salePrice.toFixed(2)}</span><span className="text-[15px] text-[#555] line-through">${product.productPrice.toFixed(2)}</span>
+                <span className='text-red-600 mr-2'>${item.productDetails.data.salePrice.toFixed(2)}</span>
+                <span className='text-[14px] last:line-through'>${item.productDetails.data.productPrice.toFixed(2)}</span>
               </>
-              )
-            }
+              ) : (
+              <span className='text-red-600'>${item.productDetails.data.productPrice.toFixed(2)}</span>
+            )}
           </div>
-          <div className='w-[80px] h-7 text-center bg-[#efefef]'>
-            <button>–</button>
-            <input type="number" defaultValue={1} className="w-[30px] h-7 border-0 bg-[#efefef] text-center" />
-            <button>+</button>
+          <div className="w-[80px] border text-center px-0 bg-[#efefef] rounded-[5px]">
+            <button onClick={() => handleDecrease(item.productId)}> - </button>
+            <input type="number" className="w-12 border-0 bg-[#efefef] text-center" value={item.productCount} readOnly />
+            <button onClick={() => handleIncrease(item.productId)}> + </button>
           </div>
           
-          <p className='text-[14px] py-1'>${((product.salePrice === 0 ? product.productPrice : product.salePrice) * 1).toFixed(2)}</p>
+          <p className='text-[14px] py-1'>${totalAmount}</p>
         </td>
         <td className="py-2 px-2 text-center align-top">
-          <button className="text-gray-600 hover:text-gray-700"><IoTrashOutline /></button>
+          <button className="text-gray-600 hover:text-gray-700" onClick={() => handleRemoveFromBasket(item.productId)}><IoTrashOutline /></button>
         </td>
       </tr>
       ))
@@ -142,7 +181,7 @@ const Product = () => {
     </tbody>
     </table>
     </div>
-
+    
   )
 }
 
