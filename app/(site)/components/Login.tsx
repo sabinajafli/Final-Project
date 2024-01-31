@@ -1,20 +1,26 @@
 'use client'
 // import {Modal} from 'flowbite-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Register from './Register';
 import Link from 'next/link';
 
 export default function Login() {
-    // const [openModal, setOpenModal] = useState(false);
-    
-    // function onCloseModal() {
-    //     setOpenModal(false);
-    // }
+  const [isLoginVisible, setLoginVisible] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    const [isLoginVisible, setLoginVisible] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
 
   const toggleLogin = () => {
     setLoginVisible(!isLoginVisible);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    setLoginVisible(false);
   };
   return (
     <div className='relative'>
@@ -24,30 +30,17 @@ export default function Login() {
         <path d="M8.49966 10.2C9.83622 10.2002 11.1195 9.67091 12.0732 8.72594C13.027 7.78097 13.5752 6.49588 13.5997 5.14718C13.5997 3.78206 13.0623 2.47286 12.1059 1.50757C11.1495 0.542291 9.85226 0 8.49966 0C7.14705 0 5.84985 0.542291 4.89341 1.50757C3.93698 2.47286 3.39966 3.78206 3.39966 5.14718C3.42416 6.49588 3.97228 7.78097 4.92607 8.72594C5.87987 9.67091 7.1631 10.2002 8.49966 10.2ZM5.09966 5.14718C5.09966 4.2371 5.45787 3.3643 6.09549 2.72078C6.73312 2.07725 7.59792 1.71573 8.49966 1.71573C9.40139 1.71573 10.2662 2.07725 10.9038 2.72078C11.5414 3.3643 11.8997 4.2371 11.8997 5.14718C11.8997 6.05726 11.5414 6.93006 10.9038 7.57359C10.2662 8.21711 9.40139 8.57864 8.49966 8.57864C7.59792 8.57864 6.73312 8.21711 6.09549 7.57359C5.45787 6.93006 5.09966 6.05726 5.09966 5.14718Z"></path>
         </svg>
     </button>
+    
     {isLoginVisible && (
         <div className='bg-white p-2 absolute -left-7 text-center text-[15px] hover:text-red-500 top-[42px] z-50 w-[100px] border'>
-          <Link href='/account/login'>Login</Link>
+          {isLoggedIn ? (
+            
+            <div onClick={handleLogout}>Log out</div>
+          ) : (
+            <Link href='/account/login'>Login</Link>
+          )}
         </div>
       )}
-    {/* <Modal show={openModal} size="lg" onClose={onCloseModal} popup>
-        <Modal.Header />
-        <Modal.Body>
-          <div className="space-y-5">
-            <h3 className="text-[28px] text-[#111] text-center font-medium">Login</h3>
-            <div>
-                <input type="email"
-                placeholder='Your email*' className='rounded-full w-full h-[50px] border-[#d4d4d4]' />
-            </div>
-            <div>
-              <input type="password" placeholder='Password*' className='rounded-full w-full h-[50px] border-[#d4d4d4]' />
-            </div>
-            <div className="w-full flex flex-col gap-5">
-              <button className='p-4 bg-[#111] text-white rounded-full text-[12px] font-medium'>LOGIN</button>
-              <Register />
-            </div>
-          </div>
-        </Modal.Body>
-    </Modal> */}
     </div>
   )
 }

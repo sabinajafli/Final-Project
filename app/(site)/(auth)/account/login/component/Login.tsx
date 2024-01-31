@@ -3,22 +3,27 @@ import Link from 'next/link'
 import React, { useContext, useState } from 'react'
 import styles from './Login.module.css'
 import { LoginCall } from '../../../../../../services/auth';
+import { UserContext, UserContextProps } from '../../../../../../context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 
 const Login = () => {
+  const userContext = useContext(UserContext) as UserContextProps;
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [token, setToken] = useState('');
-  const [userRole, setUserRole] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const { data } = await LoginCall({ email, password });
-      setToken(data.data.token);
-      setUserRole(data.data.user.role);
+      console.log(data);
+      const user = data.data.user;
+  
       localStorage.setItem('token', data.data.token);
-      localStorage.setItem('userRole', data.data.user.role )
+      userContext.setUser(user); 
+      router.push('/'); 
     } catch (err) {
       console.error(err);
     }
@@ -63,7 +68,8 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder='Password*' required/>
                 </div>
-                <button type="submit">SUBMIT</button>
+                <button type="submit">
+                  SUBMIT</button>
             </form>
         </div>
       
